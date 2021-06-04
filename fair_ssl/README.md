@@ -1,4 +1,7 @@
-Author: Jiaming Song
+Code based on existing asset.
+
+Original Author: Jiaming Song
+
 Github Page: https://github.com/ermongroup/lag-fairness
 
 # Learning Controllable Fair Representations
