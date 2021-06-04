@@ -1,4 +1,7 @@
+Code based on existing asset.
+
 Author: Morgane Rivière
+
 Github Page: https://github.com/facebookresearch/CPC_audio
 
 # CPC_audio
