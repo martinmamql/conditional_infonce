@@ -1,0 +1,82 @@
+Barlow Twins: Self-Supervised Learning via Redundancy Reduction
+---------------------------------------------------------------
+
+```
+python main.py --data data --epochs 1000 --batch-size 512 --projector 2048-128 --dataset cifar10 --learning-rate 1.5 --method simclr --temperature 0.5 --dist-address 58472   
+python main.py --data data --epochs 1000 --batch-size 128 --projector 2048-128 --dataset cifar10 --learning-rate 1.5 --method hsic --scale-loss 1.0 --lambd 0.00390625 --dist-address 58473
+python main.py --data data --epochs 1000 --batch-size 128 --projector 2048-128 --dataset cifar10 --learning-rate 1.5 --method barlow_twins --scale-loss 1.0 --lambd 0.00390625 --dist-address 58474
+
+python linear_for_small_datasets.py --dataset cifar10 --model_path checkpoint/simclr_cifar10_bsz_512_featdim_128_resnet50.pth --batch_size 512
+python linear_for_small_datasets.py --dataset stl10 --model_path checkpoint/simclr_stl10_bsz_1024_featdim_128_resnet50.pth --batch_size 512
+python linear_for_small_datasets.py --dataset tiny_imagenet --model_path checkpoint/simclr_tiny_imagenet_bsz_1024_featdim_128_resnet50.pth --batch_size 512
+```
+
+The result for simclr on cifar10 reaches to 93.77%, which is descent!
+
+Another good repo is [here](https://github.com/facebookresearch/vissl).
+
+### Below is the original FB's readme
+
+<p align="center">
+  <img width="500" alt="fig_method" src="https://user-images.githubusercontent.com/1426550/108191270-3c01cb80-7113-11eb-81d0-da34ce9e26fb.png">
+</p>
+
+PyTorch implementation of [Barlow Twins](https://arxiv.org/abs/2103.03230).
+
+```
+@article{zbontar2021barlow,
+  title={Barlow Twins: Self-Supervised Learning via Redundancy Reduction},
+  author={Zbontar, Jure and Jing, Li and Misra, Ishan and LeCun, Yann and Deny, St{\'e}phane},
+  journal={arXiv preprint arXiv:2103.03230},
+  year={2021}
+}
+```
+
+### Pretrained Model
+
+| epochs | batch size | acc1 | acc5 | download |
+| --- | --- | --- | --- | --- |
+| 1000 | 2048 | [73.3%](https://dl.fbaipublicfiles.com/barlowtwins/epochs1000_bs2048_lr0.2_lambd0.0051_proj_8192_8192_8192_scale0.024/lincls_0.1/stats.txt) | [91.0%](https://dl.fbaipublicfiles.com/barlowtwins/epochs1000_bs2048_lr0.2_lambd0.0051_proj_8192_8192_8192_scale0.024/lincls_0.1/stats.txt) | [model](https://dl.fbaipublicfiles.com/barlowtwins/epochs1000_bs2048_lr0.2_lambd0.0051_proj_8192_8192_8192_scale0.024/resnet50.pth) ([logs](https://dl.fbaipublicfiles.com/barlowtwins/epochs1000_bs2048_lr0.2_lambd0.0051_proj_8192_8192_8192_scale0.024/stats.txt)) |
+
+The pretrained model is also available on PyTorch Hub.
+
+```
+import torch
+model = torch.hub.load('facebookresearch/barlowtwins:main', 'resnet50')
+```
+
+### Barlow Twins Training
+
+Install PyTorch and download ImageNet by following the instructions in the [requirements](https://github.com/pytorch/examples/tree/master/imagenet#requirements) section of the PyTorch ImageNet training example. The code has been developed for PyTorch version 1.7.1 and torchvision version 0.8.2, but it should work with other versions just as well. 
+
+Our best model is obtained by running the following command:
+
+```
+python main.py /path/to/imagenet/ --epochs 1000 --batch-size 2048 --learning-rate 0.2 --lambd 0.0051 --projector 8192-8192-8192 --scale-loss 0.024
+```
+
+Training time is approximately 7 days on 16 v100 GPUs.
+
+### Evaluation: Linear Classification
+
+Train a linear probe on the representations learned by Barlow Twins. Freeze the weights of the resnet and use the entire ImageNet training set.
+
+```
+python evaluate.py /path/to/imagenet/ /path/to/checkpoint/resnet50.pth --lr-classifier 0.1
+```
+
+### Evaluation: Semi-supervised Learning
+
+Train a linear probe on the representations learned by Barlow Twins. Finetune the weights of the resnet and use a subset of the ImageNet training set.
+
+```
+python evaluate.py /path/to/imagenet/ /path/to/checkpoint/resnet50.pth --weights finetune --train-perc 1 --epochs 20 --lr-backbone 0.002 --lr-classifier 0.5 --weight-decay 0 --checkpoint-dir ./checkpoint/semisup/
+```
+
+### Issues
+
+In order to match the code that was used to develop Barlow Twins, we include an additional parameter, `--scale-loss`, that multiplies the loss by a constant factor. We are working on a version that will not require this parameter.
+
+### License
+
+This project is under the CC-BY-NC 4.0 license. See [LICENSE](LICENSE) for details.
