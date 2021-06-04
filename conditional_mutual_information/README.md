@@ -1,4 +1,7 @@
-Author: Sudipto Mukherjee
+Code based on existing asset.
+
+Original Author: Sudipto Mukherjee
+
 Github Page: https://github.com/sudiptodip15/CCMI
 
 # CCMI
