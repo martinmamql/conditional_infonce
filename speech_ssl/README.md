@@ -1,6 +1,6 @@
 Code based on existing asset.
 
-Author: Morgane Rivière
+Original Author: Morgane Rivière
 
 Github Page: https://github.com/facebookresearch/CPC_audio
 
